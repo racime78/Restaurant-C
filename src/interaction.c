@@ -27,7 +27,7 @@ Commande saisir_commande(int id) {
         c.temps_preparation = 10;
     } else if (strcmp(c.plat, "grec") == 0) {
         c.temps_preparation = 5;
-    } else if (strcmp(c.plat, "burger") == 0) {
+    } else if   (strcmp(c.plat, "burger") == 0) {
         c.temps_preparation = 5;
     } else {
         c.temps_preparation = 3; // valeur par défaut

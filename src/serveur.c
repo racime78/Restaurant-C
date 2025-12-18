@@ -13,36 +13,30 @@ void* serveur(void* arg) {
     int id = *(int*)arg;
 
     while (1) {
+        // 🔑 Réserver le numéro de commande tout de suite
         pthread_mutex_lock(&mutex_compteur);
         if (commandes_produites >= NB_COMMANDES) {
             pthread_mutex_unlock(&mutex_compteur);
             break;
         }
-        int num = commandes_produites + 1;
+        int num = ++commandes_produites; // incrément immédiat
         pthread_mutex_unlock(&mutex_compteur);
 
-        // Saisie utilisateur protégée
+        // Saisie utilisateur
         pthread_mutex_lock(&mutex_saisie);
-        pthread_mutex_lock(&mutex_affichage);
-
         printf("\nEntrez le plat (pizza/grec/burger) pour la commande #%d : ", num);
         fflush(stdout);
-
-        pthread_mutex_unlock(&mutex_affichage);
-
         Commande c = saisir_commande(num);
         pthread_mutex_unlock(&mutex_saisie);
 
+        // Sémaphores pour limiter la file
+        sem_wait(&places_libres);
         ajouter_commande(c);
+        sem_post(&commandes_disponibles);
 
-        pthread_mutex_lock(&mutex_compteur);
-        commandes_produites++;
-        pthread_mutex_unlock(&mutex_compteur);
-
-        pthread_mutex_lock(&mutex_affichage);
-        printf("[Serveur] Commande %d enregistrée (%s)\n", c.id, c.plat);
+        // Affichage et log
+        printf("[Serveur %d] Commande %d enregistrée (%s)\n", id, c.id, c.plat);
         fflush(stdout);
-        pthread_mutex_unlock(&mutex_affichage);
 
         char msg[100];
         snprintf(msg, sizeof(msg), "Serveur %d a pris la commande #%d (%s)", id, c.id, c.plat);
@@ -50,6 +44,5 @@ void* serveur(void* arg) {
 
         sleep(1);
     }
-
     return NULL;
 }
