@@ -39,11 +39,14 @@ void* cuisinier(void* arg) {
 
         // Décompte du temps de préparation
         for (int t = c.temps_preparation; t > 0; t--) {
-            printf("\rCuisinier %d prépare commande #%d (%s) - Temps restant : %2d sec   ",
-                   id, c.id, c.plat, t);
-            fflush(stdout);
-            sleep(1);
-        }
+    pthread_mutex_lock(&mutex_affichage);
+    printf("Cuisinier %d prépare commande #%d (%s) - Temps restant : %2d sec\n",
+           id, c.id, c.plat, t);
+    fflush(stdout);
+    pthread_mutex_unlock(&mutex_affichage);
+    sleep(1);
+}
+
 
         c.etat = 2; // TERMINEE
         printf("\rCuisinier %d a terminé la commande #%d (%s)\n", id, c.id, c.plat);
