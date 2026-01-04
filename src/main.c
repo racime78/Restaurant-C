@@ -46,23 +46,30 @@ int main() {
 
     sem_init(&places_libres, 0, CAPACITE);
     sem_init(&commandes_disponibles, 0, 0);
+    sem_init(&cuisiniers_disponibles, 0, NB_CUISINIERS);
 
     // ✅ Création des threads
     pthread_t serveurs[2];
-    pthread_t cuisiniers[2];
+    pthread_t cuisiniers[NB_CUISINIERS];
     int ids_serveurs[2] = {1, 2};
-    int ids_cuisiniers[2] = {1, 2};
+    int ids_cuisiniers[NB_CUISINIERS];
 
+    // Threads serveurs
     for (int i = 0; i < 2; i++) {
         pthread_create(&serveurs[i], NULL, serveur, &ids_serveurs[i]);
     }
-    for (int i = 0; i < 2; i++) {
+
+    // Threads cuisiniers (dépendent de NB_CUISINIERS)
+    for (int i = 0; i < NB_CUISINIERS; i++) {
+        ids_cuisiniers[i] = i + 1;
         pthread_create(&cuisiniers[i], NULL, cuisinier, &ids_cuisiniers[i]);
     }
 
     // ✅ Attente des threads
     for (int i = 0; i < 2; i++) {
         pthread_join(serveurs[i], NULL);
+    }
+    for (int i = 0; i < NB_CUISINIERS; i++) {
         pthread_join(cuisiniers[i], NULL);
     }
 
@@ -74,6 +81,7 @@ int main() {
 
     sem_destroy(&places_libres);
     sem_destroy(&commandes_disponibles);
+    sem_destroy(&cuisiniers_disponibles);
 
     printf("\nSimulation terminée : %d commandes produites et %d consommées (max %d).\n",
            commandes_produites, commandes_consommees, NB_COMMANDES);
@@ -81,7 +89,6 @@ int main() {
     write_log("Simulation terminée");
 
     // ✅ Ne pas fermer le HTML ici : on garde un fichier continu
-    // Si tu veux vraiment fermer le HTML à la fin d’une session, tu peux le faire ici :
     /*
     f = fopen("logs.html", "a");
     if (f) {

@@ -25,3 +25,4 @@ pthread_mutex_t mutex_saisie;
 // Sémaphores
 sem_t places_libres;
 sem_t commandes_disponibles;
+sem_t cuisiniers_disponibles;

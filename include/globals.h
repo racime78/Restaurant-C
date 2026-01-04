@@ -13,11 +13,13 @@ extern pthread_mutex_t mutex_saisie;
 // Sémaphores globaux
 extern sem_t places_libres;
 extern sem_t commandes_disponibles;
+extern sem_t cuisiniers_disponibles;
 
 // Compteurs globaux
 extern int commandes_produites;
 extern int commandes_consommees;
 
+#define NB_CUISINIERS 2
 
 
 #endif
